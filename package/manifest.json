@@ -1,0 +1,24 @@
+{
+  "name": "Tinami Download",
+  "version": "1.3",
+  "description": "Tinamiの各作品のページ（小説除く）でオリジナルサイズ画像のダウンロード用のリンクを表示．漫画にも一応対応．ファイル名の変更や保存場所の変更などはできません．ChromeにDownloads Extensions APIが正式に採用されたら対応予定．",
+  "icons": 
+  {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "content_scripts": [
+    {
+      "css": [
+        "hidden.css"
+      ],
+      "js": [
+        "Tinami_Download.user.js"
+      ],
+      "matches": [
+        "http://www.tinami.com/view/*"
+      ]
+    }
+  ]
+}
