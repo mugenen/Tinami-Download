@@ -1,4 +1,7 @@
 (function(){
+  if(!document.getElementById("view")) {
+      return;
+  }
   var type = document.getElementById("view").getElementsByTagName("img")[0].getAttribute("src");
   //Alt + Click
   //See: http://d.hatena.ne.jp/Griever/20100904/1283603283
@@ -11,34 +14,75 @@
     opt.target.dispatchEvent(evt);
     return evt;
   }
+  var mv = document.getElementById("mv");
+  var a = document.createElement("a");
+  var img = document.createElement("img")
+  img.setAttribute("src", chrome.extension.getURL("download.png"));
+  img.setAttribute("draggable", false)
+  a.appendChild(img);
+  a.setAttribute("href", "javascript:void(0);");
+
   if((type == "/img/job/view/mo.gif") || (type == "/img/job/view/il.gif")) {
     if(document.getElementsByClassName("viewbody")[0].getElementsByTagName("img")[0].style.cursor == "pointer") {
-      var main = function(){
-        if(document.getElementById("open_original_content").getAttribute("target") == "TD_temp") {
-          return;
-        }
-        //Load image in iframe
-        var ifr = document.createElement("iframe");
-        ifr.setAttribute("id", "TD_temp");
-        document.body.appendChild(ifr);
-        document.getElementById("open_original_content").setAttribute("target", "TD_temp");
+      //Load image in iframe
+      var ifr = document.createElement("iframe");
+      ifr.setAttribute("id", "TD_temp");
+      document.body.appendChild(ifr);
+      document.getElementById("open_original_content").setAttribute("target", "TD_temp");
 
-        ifr.onload = function(){
+      ifr.onload = function(){
+        var main = function(){
           var toClick = document.createElement("a");
-          toClick.setAttribute("href", ifr.contentDocument.getElementsByTagName("img")[0].getAttribute("src"));
+          var original = ifr.contentDocument.getElementsByTagName("img")[0].getAttribute("src");
+          toClick.setAttribute("href", original);
           dispatchMouseEvents({ type:'click', altKey:true, target:toClick, button:0 });
-          document.body.removeChild(ifr);
         };
-
-        document.getElementById("open_original_content").submit();
+        if(main){
+          a.addEventListener("click", main, false);
+        }
+        
+        var dragging = function (e) {
+          var original = ifr.contentDocument.getElementsByTagName("img")[0].getAttribute("src");
+          var title = document.getElementsByClassName('viewdata')[0].getElementsByTagName('span')[0].textContent
+          title.replace(':', '：');
+          var creator = document.getElementsByClassName('prof')[0].getElementsByTagName('strong')[0].textContent;
+          creator.replace(':', '：');
+          var id = document.URL.substring(document.URL.lastIndexOf("/") + 1);
+          var ext = original.substring(original.lastIndexOf("."));
+        
+          var filename = "application/octet-stream:" + creator + " - " + title + "(" + id + ")" + ext + ":" + original;
+          e.dataTransfer.setData("DownloadURL", filename);
+        };
+        
+        if(dragging){
+          a.addEventListener("dragstart", dragging, false);
+        }
       };
+      document.getElementById("open_original_content").submit();
+
+
     } else {
       var main = function(){
         var images = document.getElementsByClassName("viewbody")[0].getElementsByTagName("img");
         var toClick = document.createElement("a");
         toClick.setAttribute("href", images[0].getAttribute("src"));
         dispatchMouseEvents({ type:'click', altKey:true, target:toClick, button:0 });
-     };
+      };
+      
+      var dragging = function (e) {
+        var images = document.getElementsByClassName("viewbody")[0].getElementsByTagName("img");
+        var original = images[0].getAttribute("src");
+        var title = document.getElementsByClassName('viewdata')[0].getElementsByTagName('span')[0].textContent
+        title.replace(':', '：');
+        var creator = document.getElementsByClassName('prof')[0].getElementsByTagName('strong')[0].textContent;
+        creator.replace(':', '：');
+        var id = document.URL.substring(document.URL.lastIndexOf("/") + 1);
+        var ext = original.substring(original.lastIndexOf("."));
+      
+        var filename = "application/octet-stream:" + creator + " - " + title + "(" + id + ")" + ext + ":" + original;
+        e.dataTransfer.setData("DownloadURL", filename);
+      }
+
     }
   } else if(type == "/img/job/view/ma.gif") {
     var main = function(){
@@ -51,15 +95,18 @@
     };
   }
 
-  var mv = document.getElementById("mv");
-  var a = document.createElement("a");
-  var img = document.createElement("img")
-  img.setAttribute("src", chrome.extension.getURL("download.png"));
-  a.appendChild(img);
-  a.setAttribute("href", "javascript:void(0);");
   var click = function(){
-  	a.addEventListener("click", main, false);
+    if(main){
+      a.addEventListener("click", main, false);
+    }
   };
   click();
+  
+  var drag = function(){
+    if(dragging){
+      a.addEventListener("dragstart", dragging, false);
+    }
+  };
+  drag();
   mv.appendChild(a);
 })();
