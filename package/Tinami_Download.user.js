@@ -1,3 +1,4 @@
+'use strict';
 (function(){
   if(!document.getElementById("view")) {
       return;
@@ -22,6 +23,15 @@
   a.appendChild(img);
   a.setAttribute("href", "javascript:void(0);");
 
+  var filename = function (e) {
+    var title = document.getElementsByClassName('viewdata')[0].getElementsByTagName('span')[0].textContent
+    var creator = document.getElementsByClassName('prof')[0].getElementsByTagName('strong')[0].textContent;
+    var id = document.URL.substring(document.URL.lastIndexOf("/") + 1);
+  
+    var filename = creator + " - " + title + "(" + id + ")";
+    return filename;
+  }
+
   if((type == "/img/job/view/mo.gif") || (type == "/img/job/view/il.gif")) {
     if(document.getElementsByClassName("viewbody")[0].getElementsByTagName("img")[0].style.cursor == "pointer") {
       //Load image in iframe
@@ -35,62 +45,33 @@
           var toClick = document.createElement("a");
           var original = ifr.contentDocument.getElementsByTagName("img")[0].getAttribute("src");
           toClick.setAttribute("href", original);
-          dispatchMouseEvents({ type:'click', altKey:true, target:toClick, button:0 });
+          toClick.setAttribute('download', filename());
+          dispatchMouseEvents({ type:'click', altKey:false, target:toClick, button:0 });
         };
         if(main){
           a.addEventListener("click", main, false);
         }
-        
-        var dragging = function (e) {
-          var original = ifr.contentDocument.getElementsByTagName("img")[0].getAttribute("src");
-          var title = document.getElementsByClassName('viewdata')[0].getElementsByTagName('span')[0].textContent
-          title.replace(':', '：');
-          var creator = document.getElementsByClassName('prof')[0].getElementsByTagName('strong')[0].textContent;
-          creator.replace(':', '：');
-          var id = document.URL.substring(document.URL.lastIndexOf("/") + 1);
-          var ext = original.substring(original.lastIndexOf("."));
-        
-          var filename = "application/octet-stream:" + creator + " - " + title + "(" + id + ")" + ext + ":" + original;
-          e.dataTransfer.setData("DownloadURL", filename);
-        };
-        
-        if(dragging){
-          a.addEventListener("dragstart", dragging, false);
-        }
       };
+      
       document.getElementById("open_original_content").submit();
-
-
+      document.getElementById("open_original_content").removeAttribute("target");
     } else {
       var main = function(){
         var images = document.getElementsByClassName("viewbody")[0].getElementsByTagName("img");
         var toClick = document.createElement("a");
         toClick.setAttribute("href", images[0].getAttribute("src"));
-        dispatchMouseEvents({ type:'click', altKey:true, target:toClick, button:0 });
+        toClick.setAttribute('download', filename());
+        dispatchMouseEvents({ type:'click', altKey:false, target:toClick, button:0 });
       };
-      
-      var dragging = function (e) {
-        var images = document.getElementsByClassName("viewbody")[0].getElementsByTagName("img");
-        var original = images[0].getAttribute("src");
-        var title = document.getElementsByClassName('viewdata')[0].getElementsByTagName('span')[0].textContent
-        title.replace(':', '：');
-        var creator = document.getElementsByClassName('prof')[0].getElementsByTagName('strong')[0].textContent;
-        creator.replace(':', '：');
-        var id = document.URL.substring(document.URL.lastIndexOf("/") + 1);
-        var ext = original.substring(original.lastIndexOf("."));
-      
-        var filename = "application/octet-stream:" + creator + " - " + title + "(" + id + ")" + ext + ":" + original;
-        e.dataTransfer.setData("DownloadURL", filename);
-      }
-
     }
   } else if(type == "/img/job/view/ma.gif") {
     var main = function(){
       var images = document.getElementsByClassName("viewbody")[0].getElementsByTagName("img");
       for(var i = 0; i < images.length; i++) {
         var toClick = document.createElement("a");
-        toClick.setAttribute("href", images[i].getAttribute("original"));
-        dispatchMouseEvents({ type:'click', altKey:true, target:toClick, button:0 });
+        toClick.setAttribute("href", images[i].getAttribute('src'));
+        toClick.setAttribute('download', filename() + ' - ' + (i + 1));
+        dispatchMouseEvents({ type:'click', altKey:false, target:toClick, button:0 });
       }
     };
   }
@@ -102,11 +83,5 @@
   };
   click();
   
-  var drag = function(){
-    if(dragging){
-      a.addEventListener("dragstart", dragging, false);
-    }
-  };
-  drag();
   mv.appendChild(a);
 })();
