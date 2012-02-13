@@ -47,6 +47,7 @@
           toClick.setAttribute("href", original);
           toClick.setAttribute('download', filename());
           dispatchMouseEvents({ type:'click', altKey:false, target:toClick, button:0 });
+          this.removeEventListener('click', main);
         };
         if(main){
           a.addEventListener("click", main, false);
@@ -62,6 +63,7 @@
         toClick.setAttribute("href", images[0].getAttribute("src"));
         toClick.setAttribute('download', filename());
         dispatchMouseEvents({ type:'click', altKey:false, target:toClick, button:0 });
+        this.removeEventListener('click', main);
       };
     }
   } else if(type == "/img/job/view/ma.gif") {
@@ -73,6 +75,7 @@
         toClick.setAttribute('download', filename() + ' - ' + (i + 1));
         dispatchMouseEvents({ type:'click', altKey:false, target:toClick, button:0 });
       }
+      this.removeEventListener('click', main);
     };
   }
 
