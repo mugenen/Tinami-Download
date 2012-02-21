@@ -1,4 +1,5 @@
 (function() {
+  'use strict';
   var addLink, dispatchMouseEvents, download, filename, form, getFileName, getImageCreator, getImageID, getImageTitle, ifr, main, type;
 
   if (!document.getElementById("view")) return;

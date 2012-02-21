@@ -1,3 +1,4 @@
+'use strict';
 if(!document.getElementById("view"))
     return;
 
