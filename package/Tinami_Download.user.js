@@ -17,9 +17,9 @@
 
   getImageTitle = function() {
     var tag;
-    tag = document.querySelector('.viewdata span');
-    if (tag != null) {
-      return tag.textContent;
+    tag = $('.viewdata span');
+    if (tag.length > 0) {
+      return tag.text();
     } else {
       return null;
     }
@@ -27,9 +27,9 @@
 
   getImageCreator = function() {
     var tag;
-    tag = document.querySelector('.prof strong');
-    if (tag != null) {
-      return tag.textContent;
+    tag = $('.prof strong');
+    if (tag.length > 0) {
+      return tag.text();
     } else {
       return null;
     }
@@ -45,7 +45,7 @@
     title = getImageTitle();
     id = getImageID();
     if ((creator != null) && (title != null) && (id != null)) {
-      return creator + ' - ' + title + '(' + id + ')';
+      return "" + creator + " - " + title + "(" + id + ")";
     } else {
       return null;
     }
@@ -53,73 +53,73 @@
 
   download = function(url, filename) {
     var toClick;
-    toClick = document.createElement('a');
-    toClick.setAttribute('href', url);
-    toClick.setAttribute('download', filename);
+    toClick = $('<a>');
+    toClick.attr('href', url);
+    toClick.attr('download', filename);
     return dispatchMouseEvents({
       type: 'click',
       altKey: false,
-      target: toClick,
+      target: toClick.get(0),
       button: 0
     });
   };
 
   addLink = function(main) {
     var a, img, parent;
-    a = document.createElement('a');
-    a.addEventListener('click', main, false);
-    img = document.createElement('img');
-    img.setAttribute('src', chrome.extension.getURL('download.png'));
-    img.setAttribute('draggable', false);
-    a.appendChild(img);
-    a.setAttribute('href', 'javascript:void(0);');
-    parent = document.getElementById('mv');
-    return parent.appendChild(a);
+    img = $('<img>');
+    img.attr('src', chrome.extension.getURL('download.png'));
+    img.attr('draggable', false);
+    a = $('<a>');
+    a.append(img);
+    a.attr('href', 'javascript:void(0);');
+    a.one('click', main);
+    parent = $('#mv');
+    return parent.append(a);
   };
 
-  type = document.querySelector('#view img').getAttribute("src");
+  type = $('#view img').attr('src');
 
   filename = getFileName();
 
   if (!(filename != null)) return;
 
   if (type === '/img/job/view/mo.gif' || type === '/img/job/view/il.gif') {
-    if (document.querySelector('.viewbody img').style.cursor === 'pointer') {
-      ifr = document.createElement('iframe');
-      ifr.setAttribute('id', 'TD_temp');
-      document.body.appendChild(ifr);
-      ifr.onload = function() {
+    if ($('.viewbody img').css('cursor') === 'pointer') {
+      ifr = $('<iframe>');
+      ifr.attr('id', 'TD_temp');
+      $('body').append(ifr);
+      form = $('#open_original_content');
+      form.attr('target', 'TD_temp');
+      form.submit();
+      form.removeAttr("target");
+      ifr.load(function() {
         var main;
         main = function() {
           var original;
-          original = ifr.contentDocument.getElementsByTagName("img")[0].getAttribute("src");
+          original = ifr.contents().find('img').eq(0).attr('src');
           download(original, filename);
-          return this.removeEventListener('click', main);
+          return false;
         };
         return addLink(main);
-      };
-      form = document.getElementById('open_original_content');
-      form.setAttribute('target', 'TD_temp');
-      form.submit();
-      form.removeAttribute("target");
+      });
     } else {
       main = function() {
         var images;
-        images = document.querySelector('.viewbody').querySelectorAll('img');
-        download(images[0].getAttribute("src"), filename);
-        return this.removeEventListener('click', main);
+        images = $('.viewbody:eq(0) img');
+        download(images.attr('src'), filename);
+        return false;
       };
       addLink(main);
     }
   } else if (type === '/img/job/view/ma.gif') {
     main = function() {
       var i, image, images, _len;
-      images = document.querySelector('.viewbody').querySelectorAll('img');
+      images = $('.viewbody:eq(0) img');
       for (i = 0, _len = images.length; i < _len; i++) {
         image = images[i];
-        download(image.getAttribute('src'), filename + ' - ' + (i + 1));
+        download(image.getAttribute('src'), "" + filename + " - " + (i + 0));
       }
-      return this.removeEventListener('click', main);
+      return false;
     };
     addLink(main);
   }

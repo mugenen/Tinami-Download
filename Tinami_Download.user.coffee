@@ -15,16 +15,16 @@ dispatchMouseEvents = (opt) ->
     opt.target.dispatchEvent(evt);
 
 getImageTitle = () ->
-    tag = document.querySelector('.viewdata span')
-    if tag?
-        tag.textContent;
+    tag = $('.viewdata span')
+    if tag.length > 0
+        tag.text();
     else
         null
 
 getImageCreator = () ->
-    tag = document.querySelector('.prof strong')
-    if tag?
-        tag.textContent;
+    tag = $('.prof strong')
+    if tag.length > 0
+        tag.text();
     else
         null
 
@@ -36,65 +36,65 @@ getFileName = () ->
     title = getImageTitle()
     id = getImageID()
     if creator? and title? and id?
-        creator + ' - ' + title + '(' + id + ')'
+        "#{creator} - #{title}(#{id})"
     else
         null
 
 download = (url, filename) ->
-    toClick = document.createElement('a');
-    toClick.setAttribute('href', url);
-    toClick.setAttribute('download', filename);
-    dispatchMouseEvents({type:'click', altKey:false, target:toClick, button:0});
+    toClick = $('<a>')
+    toClick.attr('href', url);
+    toClick.attr('download', filename);
+    dispatchMouseEvents({type:'click', altKey:false, target:toClick.get(0), button:0});
 
 addLink = (main) ->
-    a = document.createElement('a');
-    a.addEventListener('click', main, false);
+    img = $('<img>')
+    img.attr('src', chrome.extension.getURL('download.png'));
+    img.attr('draggable', false)
+    
+    a = $('<a>')
+    a.append(img);
+    a.attr('href', 'javascript:void(0);');
+    a.one('click', main);
 
-    img = document.createElement('img')
-    img.setAttribute('src', chrome.extension.getURL('download.png'));
-    img.setAttribute('draggable', false)
-    a.appendChild(img);
-    a.setAttribute('href', 'javascript:void(0);');
-
-    parent = document.getElementById('mv');
-    parent.appendChild(a);
+    parent = $('#mv');
+    parent.append(a);
 
 
-type = document.querySelector('#view img').getAttribute("src")
+type = $('#view img').attr('src')
 filename = getFileName()
 
 if not filename?
     return
 
 if type == '/img/job/view/mo.gif' or type == '/img/job/view/il.gif'
-    if document.querySelector('.viewbody img').style.cursor == 'pointer'#拡大可能な一枚絵
-        ifr = document.createElement('iframe');
-        ifr.setAttribute('id', 'TD_temp');
-        document.body.appendChild(ifr);
+    if $('.viewbody img').css('cursor') == 'pointer'#拡大可能な一枚絵
+        ifr = $('<iframe>');
+        ifr.attr('id', 'TD_temp');
+        $('body').append(ifr);
 
-        ifr.onload = () ->
-            main = () ->
-                original = ifr.contentDocument.getElementsByTagName("img")[0].getAttribute("src");
-                download(original, filename)
-                @removeEventListener('click', main);
-            addLink(main)
-        
-        form = document.getElementById('open_original_content')
-        form.setAttribute('target', 'TD_temp');
+        form = $('#open_original_content')
+        form.attr('target', 'TD_temp');
         form.submit();
-        form.removeAttribute("target");
+        form.removeAttr("target");
+
+        ifr.load () ->
+            main = () ->
+                original = ifr.contents().find('img').eq(0).attr('src');
+                download(original, filename)
+                false
+            addLink(main)
     else#拡大できない一枚絵
         main = () ->
-            images = document.querySelector('.viewbody').querySelectorAll('img')
-            download(images[0].getAttribute("src"), filename)
-            this.removeEventListener('click', main);
+            images = $('.viewbody:eq(0) img')
+            download(images.attr('src'), filename)
+            false
         addLink(main)
 else if type == '/img/job/view/ma.gif'#漫画の場合
     main = () ->
-        images = document.querySelector('.viewbody').querySelectorAll('img')
+        images = $('.viewbody:eq(0) img')
         for image, i in images
-            download(image.getAttribute('src'), filename + ' - ' + (i + 1))
-        this.removeEventListener('click', main);
+            download(image.getAttribute('src'), "#{filename} - #{i + 0}")
+        false
     addLink(main)
 
 
