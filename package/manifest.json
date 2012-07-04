@@ -1,7 +1,8 @@
 {
+  "manifest_version": 2,
   "name": "Tinami Download",
   "version": "2.3",
-  "description": "Tinamiの各作品のページ（小説除く）でオリジナルサイズ画像のダウンロード用のリンクを表示．漫画にも一応対応．ファイル名の変更や保存場所の変更などはできません．ChromeにDownloads Extensions APIが正式に採用されたら対応予定．",
+  "description": "Tinamiの各作品のページ（小説除く）でオリジナルサイズ画像のダウンロード用のリンクを表示．漫画にも一応対応．保存場所の変更などはできません．ChromeにDownloads Extensions APIが正式に採用されたら対応予定．",
   "icons": 
   {
     "16": "icon16.png",
@@ -21,5 +22,8 @@
         "http://www.tinami.com/view/*"
       ]
     }
+  ],
+  "web_accessible_resources": [
+    "download.png"
   ]
 }
